@@ -6,17 +6,17 @@ class TwilioController < ApplicationController
 
   session["counter"] ||= 0
 
-  #check here to see if a signature is included
+  # check here to see if a signature is included on the text message
   if params[:Body].strip.match(" ")
     params[:Body] = params[:Body].split(/ /).first
   end
 
-  #if the user wants to start from the beginning
+  # if the user wants to start from the beginning
   if params[:Body].strip.downcase == "reset"
     session["counter"] = 0
   end
 
-  #User texts hello to begin the pre-screening process
+  # User texts hello to begin the pre-screening process
   if params[:Body].strip.downcase == "hello" || params[:Body].strip.downcase == "hi" || params[:Body].strip.downcase == "hola"
     session["counter"] = 0
   end
