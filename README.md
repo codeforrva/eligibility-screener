@@ -5,4 +5,4 @@ On February 20-22nd, mRelief (www.mrelief.com) will be part of a national event 
 We invite users all across the nation to participate in a challenge to build a food stamps eligibility pre-screeners for a target population.  We also encourage meaningful collaboration with non-technical experts in the field engaged in food policy and advocacy.
 
 
-Here is a codebase of an SMS pre-screener!
+Here is a codebase of an SMS pre-screener. Fork this codebase, update it for your target population and then push your branch back up to GitHub!
