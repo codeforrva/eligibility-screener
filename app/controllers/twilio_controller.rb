@@ -197,9 +197,9 @@ class TwilioController < ApplicationController
    end
   end
 
-  include Webhookable
+#  include Webhookable
 
-   after_filter :set_header
+#   after_filter :set_header
 
    skip_before_action :verify_authenticity_token
 
