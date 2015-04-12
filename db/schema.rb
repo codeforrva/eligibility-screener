@@ -11,7 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150209162600) do
+ActiveRecord::Schema.define(version: 20150412141634) do
+
+  create_table "profiles", force: :cascade do |t|
+    t.string   "phone_number"
+    t.boolean  "enrolled_college"
+    t.boolean  "us_citizen"
+    t.string   "zip_code"
+    t.integer  "age"
+    t.integer  "people_in_household"
+    t.boolean  "disabled"
+    t.integer  "monthly_income"
+    t.boolean  "on_disability"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
 
   create_table "snap_eligibilities", force: :cascade do |t|
     t.string   "snap_dependent_no"
