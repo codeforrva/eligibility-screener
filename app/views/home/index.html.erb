@@ -1,0 +1,28 @@
+
+<h3>mRelief SNAP screener example</h3>
+
+<p>Use this form to simulate an SMS conversation with the app.</p>
+
+<input type="text" id="message" placeholder="type message here (hello to start)" style="width: 400px">
+<ul id="replies"></ul>
+<script>
+$(function() {
+  $('#message').on('keypress', function (e) {
+    if (e.keyCode == 13) {
+      var data = {
+          Body: $(this).val()
+      };
+
+      $.post('/', data).done(function(r) {
+        addMessage(r);
+      }).fail(function(xhr) {
+        addMessage(xhr.responseXML);
+      });
+      $(this).val('');
+    }
+  });
+});
+function addMessage(xml) {
+  $('#replies').append($('<li/>').text(xml.getElementsByTagName('Message')[0].firstChild.nodeValue));
+}
+</script>

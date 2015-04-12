@@ -38,6 +38,8 @@ Run the app:
 
 `rails s`
 
+## Testing with cURL
 
+You can simulate sending a text message to the app using cURL if cookies are enabled. For example:
 
-
+`curl -X POST http://localhost:3000/ -c /tmp/cookies -b /tmp/cookies -d 'Body=hello'`

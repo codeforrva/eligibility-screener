@@ -4,6 +4,8 @@ class TwilioController < ApplicationController
 
   def text
 
+    begin
+      status = 200
   session["counter"] ||= 0
 
   # check here to see if a signature is included on the text message
@@ -187,13 +189,19 @@ class TwilioController < ApplicationController
     @s.save
    end
 
+    session["counter"] += 1
+
+ rescue Exception => e
+      message = 'Error: ' + e.message
+      status = 500
+    end
+
    twiml = Twilio::TwiML::Response.new do |r|
        r.Message message
    end
-    session["counter"] += 1
 
     respond_to do |format|
-     format.xml {render xml: twiml.text}
+     format.xml { render xml: twiml.text, :status => status }
    end
   end
 
