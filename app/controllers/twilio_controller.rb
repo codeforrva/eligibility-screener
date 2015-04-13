@@ -26,15 +26,14 @@ class TwilioController < ApplicationController
         profile.destroy!
         response = "OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
       when "list"
-        # TODO: build a list of program screeners
-        response = "For food stamps, text 'food'."
+        response = RegisteredScreeners.values.map { |s| s.instructions }.join(' ')
       end
       if !response.nil?
         send_text(response)
         return
       end
 
-      # TODO: choose program to screen for
+      # TODO: check for screener key
       # TODO: store which program is active
       # TODO: store which question was asked
 
