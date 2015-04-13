@@ -10,7 +10,8 @@ $(function() {
   $('#message').on('keypress', function (e) {
     if (e.keyCode == 13) {
       var data = {
-          Body: $(this).val()
+          Body: $(this).val(),
+          From: '9999999999'
       };
 
       $.post('/', data).done(function(r) {
