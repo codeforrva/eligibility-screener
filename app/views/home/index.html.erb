@@ -21,7 +21,7 @@ $(function() {
       });
       $(this).val('');
     }
-  });
+  }).focus();
 });
 function addMessage(xml) {
   $('#replies').append($('<li/>').text(xml.getElementsByTagName('Message')[0].firstChild.nodeValue));
