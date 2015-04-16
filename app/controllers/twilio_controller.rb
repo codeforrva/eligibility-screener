@@ -4,6 +4,23 @@ class TwilioController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 
+  # these are the words that will be accepted as 'hello'
+  # and which locale they will select
+  def hello_locales
+    {
+      "hello" => :en,
+      "hi" => :en,
+      "hey" => :en,
+      "hola" => :es
+    }
+  end
+
+  # reset words in multiple languages
+  # so you can always reset if you get lost
+  def reset_words
+    %w(reset)
+  end
+
   def text
     begin
       response = nil
@@ -19,32 +36,45 @@ class TwilioController < ApplicationController
       end
       body = message.Body.split(/ /).first.strip.downcase
 
-      # check for control words
-      case body
-      when "hello", "hi", "hola"
-        # TODO: language selection here?
-        response = "Welcome to Aperture Science! We help you check your eligibility for benefits. For a list of programs, text 'list'. You can also text 'reset' or 'delete'."
-      when "reset"
-        profile.reset!
-        reset_session
-        response = "OK, reset. Text 'hello' to begin again, or 'list' for a list of programs."
-      when "delete"
-        profile.destroy!
-        reset_session
-        response = "OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
-      when "list"
-        response = Profile.all_instructions
-      when *Profile.screener_names
-        profile.active_screener = body
-      end
+      # block to execute with the user's locale
+      # setting I18n.locale does not seem to be a good idea
+      # because it is thread local and so can leak to other
+      # requests in some servers
+      I18n.with_locale profile.locale do
+        # check for control words
+        case body
+        when *hello_locales.keys
+          profile.locale = hello_locales[body]
+          profile.save!
+          response = I18n.t('response.welcome', locale: profile.locale)
+        when *reset_words
+          profile.reset!
+          reset_session
+          response = I18n.t('response.reset', locale: profile.locale)
+        when *I18n.t!('control.delete')
+          profile.destroy!
+          reset_session
+          response = I18n.t('response.delete')
+        when *I18n.t!('control.list')
+          response = Profile.all_instructions
+        when *Profile.screener_names
+          profile.active_screener = body
+        end
 
-      # send & return if we have response text
-      if !response.nil?
-        send_text(response)
-        return
-      end
+        # send & return if we have response text
+        if !response.nil?
+          send_text(response)
+          return
+        end
 
-      response = profile.handle_answer!(body)
+        # final check to make sure they have selected a screener
+        if profile.active_screener.nil?
+          send_text I18n.t('response.welcome')
+          return
+        end
+
+        response = I18n.t(profile.handle_answer!(body))
+      end
 
     rescue Exception => e
       response = 'Error: ' + e.message

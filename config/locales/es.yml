@@ -1,0 +1,35 @@
+# TODO: translate this
+# also see hello_locales and reset_words in twilio_controller.rb
+# and write_attribute in profile.rb for additional settings
+es:
+  # control words
+  # these can be an array to match multiple inputs
+  control:
+    delete: "es_delete"
+    list: "es_list"
+  # general responses
+  response:
+    welcome: "es Welcome to Aperture Science! We help you check your eligibility for benefits. For a list of programs, text 'list'. You can also text 'reset' or 'delete'."
+    reset: "es OK, reset. Text 'hello' to begin again, or 'list' for a list of programs."
+    delete: "es OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
+  # errors
+  error:
+    boolean: "es We didn't understand. Please text 'yes' or 'no'."
+  # fields
+  enrolled_college: "es Are you currently enrolled in college?"
+  us_citizen: "es Are you a United States citizen?"
+  zip_code: "es What is your zip code?"
+  age: "es What is your age?"
+  people_in_household: "es How many people live in your household, including yourself?"
+  monthly_income: "es What is the gross monthly income of all people living in your household, including yourself? Income includes social security, child support, and unemployment insurance before any deductions."
+  on_disability: "es Are you receiving disability payments from Social Security, the Railroad Retirement Board or Veterans Affairs?"
+  # food stamp screener
+  food:
+    instructions: "es For food stamps, text '%s'."
+    qualified: "es It looks like you qualify for food stamps! We should probably tell you how to get them now."
+    disqualified: "es Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
+  # aperture science screener
+  science:
+    instructions: "es For testing and cake, text '%s'."
+    qualified: "es Based on the fact that you are alive, you are eligible for testing programs at Aperture Science!"
+    disqualified: "es Based on the fact that you are likely dead, you may not be eligible for testing programs at Aperture Science."

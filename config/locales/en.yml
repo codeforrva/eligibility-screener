@@ -1,23 +1,34 @@
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t 'hello'
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t('hello') %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more, please read the Rails Internationalization guide
-# available at http://guides.rubyonrails.org/i18n.html.
-
+# also see hello_locales and reset_words in twilio_controller.rb
+# and write_attribute in profile.rb for additional settings
 en:
-  hello: "Hello world"
+  # control words
+  # these can be an array to match multiple inputs
+  control:
+    delete: "delete"
+    list: "list"
+  # general responses
+  response:
+    welcome: "Welcome to Aperture Science! We help you check your eligibility for benefits. For a list of programs, text 'list'. You can also text 'reset' or 'delete'."
+    reset: "OK, reset. Text 'hello' to begin again, or 'list' for a list of programs."
+    delete: "OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
+  # errors
+  error:
+    boolean: "We didn't understand. Please text 'yes' or 'no'."
+  # fields
+  enrolled_college: "Are you currently enrolled in college?"
+  us_citizen: "Are you a United States citizen?"
+  zip_code: "What is your zip code?"
+  age: "What is your age?"
+  people_in_household: "How many people live in your household, including yourself?"
+  monthly_income: "What is the gross monthly income of all people living in your household, including yourself? Income includes social security, child support, and unemployment insurance before any deductions."
+  on_disability: "Are you receiving disability payments from Social Security, the Railroad Retirement Board or Veterans Affairs?"
+  # food stamp screener
+  food:
+    instructions: "For food stamps, text '%s'."
+    qualified: "It looks like you qualify for food stamps! We should probably tell you how to get them now."
+    disqualified: "Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
+  # aperture science screener
+  science:
+    instructions: "For testing and cake, text '%s'."
+    qualified: "Based on the fact that you are alive, you are eligible for testing programs at Aperture Science!"
+    disqualified: "Based on the fact that you are likely dead, you may not be eligible for testing programs at Aperture Science."

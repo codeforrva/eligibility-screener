@@ -11,7 +11,7 @@ class Profile < ActiveRecord::Base
   validates :active_screener, inclusion: { in: ->(p) { p.class.screener_names } }, allow_nil: true
 
   def self.question_attributes
-    attribute_names - ['id','phone_number','created_at','updated_at','active_screener'] - state_attributes
+    attribute_names - ['id','phone_number','created_at','updated_at','active_screener','locale'] - state_attributes
   end
 
   def self.state_attributes
@@ -23,7 +23,7 @@ class Profile < ActiveRecord::Base
   end
 
   def self.all_instructions
-    state_machines.keys.map { |n| public_send("#{n}_instructions") }.join ' '
+    state_machines.keys.map { |n| I18n.t("#{n}.instructions") % n }.join ' '
   end
 
   def reset!
@@ -33,6 +33,7 @@ class Profile < ActiveRecord::Base
     self.class.state_attributes.each do |n|
       public_send("#{n}=", 'start')
     end
+    self.locale = :en
     save!
   end
 
@@ -51,7 +52,13 @@ class Profile < ActiveRecord::Base
       validate!
       public_send("next_#{active_screener}!") # saves
     end
-    self[state_attr] # return new state name
+     # return new state name for translation
+     # qualified & disqualified get prefixed
+    if ['qualified', 'disqualified'].include? self[state_attr]
+      "#{active_screener}.#{self[state_attr]}"
+    else
+      self[state_attr]
+    end
   end
 
   def write_attribute(attr_name, value)
@@ -62,7 +69,7 @@ class Profile < ActiveRecord::Base
       elsif %w(false no n f nope).include? value
         value = false
       else
-        raise "Unexpected answer for a Boolean field: #{value}"
+        raise I18n.t('error.boolean')
       end
     end
     super(attr_name, value)
@@ -70,6 +77,8 @@ class Profile < ActiveRecord::Base
 
   # define a screener with the given name, attributes hash,
   # and a block to execute for the :next event
+  # TODO: allow creating custom states
+  # TODO: screener aliases for translations
   def self.screener(name, attrs = {}, &block)
     name = name.to_sym
 
@@ -110,8 +119,7 @@ class Profile
       (!age.nil? && age < 18)
   end
 
-  screener :food,
-    instructions: "For food stamps, text '%s'." do
+  screener :food do
     # if disqualified but no zip code, get the zip code
     transition all => :zip_code, if: ->(p) { p.zip_code.nil? && p.food_disqualified? }
     # if disqualified with zip code, finished
@@ -137,8 +145,7 @@ end
 
 # aperture science
 class Profile
-  screener :science,
-    instructions: "For testing and cake, text '%s'." do
+  screener :science do
     transition all => :age, if: ->(p) { p.age.nil? }
     transition all => :qualified, if: ->(p) { p.age <= 1000 }
     transition all => :disqualified

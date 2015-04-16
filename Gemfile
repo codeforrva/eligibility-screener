@@ -48,3 +48,4 @@ group :development, :test do
 end
 
 gem 'state_machines-activerecord'
+gem 'rails-i18n'
