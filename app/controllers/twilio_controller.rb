@@ -30,10 +30,8 @@ class TwilioController < ApplicationController
         response = "OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
       when "list"
         response = RegisteredScreeners.all_instructions
-      when *RegisteredScreeners.keys
-        # set active screener
-        session[:screener] = body
-        session[:active_field] = nil
+      when *Profile.screener_names
+        profile.active_screener = body
       end
 
       # send & return if we have response text
@@ -42,23 +40,7 @@ class TwilioController < ApplicationController
         return
       end
 
-      # check for active screener
-      screener = RegisteredScreeners[session[:screener]]
-      if screener.nil?
-        session[:active_field] = nil
-        send_text("We lost our train of thought. " + RegisteredScreeners.all_instructions)
-        return
-      end
-
-      # check for active field and set answer
-      if !session[:active_field].nil?
-        logger.info "Setting active field %s to %s" % session[:active_field], body
-        profile[session[:active_field]] = body
-        profile.save!
-        session[:active_field] = nil
-      end
-
-      response = screener.next_question_for profile
+      response = profile.handle_answer!(body)
 
     rescue Exception => e
       response = 'Error: ' + e.message

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150412141634) do
+ActiveRecord::Schema.define(version: 20150415141008) do
 
   create_table "profiles", force: :cascade do |t|
     t.string   "phone_number"
@@ -25,6 +25,9 @@ ActiveRecord::Schema.define(version: 20150412141634) do
     t.boolean  "on_disability"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+    t.string   "active_screener"
+    t.string   "food_state"
+    t.string   "science_state"
   end
 
   create_table "snap_eligibilities", force: :cascade do |t|

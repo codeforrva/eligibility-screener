@@ -47,3 +47,4 @@ group :development, :test do
   gem 'spring'
 end
 
+gem 'state_machines-activerecord'
