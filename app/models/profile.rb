@@ -1,12 +1,13 @@
 class Profile < ActiveRecord::Base
   validates :phone_number, presence: true, uniqueness: true
-  validates :age, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :people_in_household, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :monthly_income, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+  # positive integers
+  validates :age, :monthly_income,
+    numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :people_in_household,
+    numericality: { only_integer: true, greater_than_or_equal_to: 0,
+    less_than_or_equal_to: SnapEligibility.maximum(:snap_dependent_no) }, allow_nil: true
   # TODO: state machines collection is not available yet - maybe after all the state machines are defined
   # validates :active_screener, inclusion: { in: Profile.screener_names }, allow_nil: true
-
-  # TODO: yes/no, y/n, si/no etc to boolean, also don't allow crazy values
 
   def self.question_attributes
     attribute_names - ['id','phone_number','created_at','updated_at','active_screener'] - state_attributes
@@ -47,6 +48,20 @@ class Profile < ActiveRecord::Base
     end
     self[state_attr] # return new state name
   end
+
+  def write_attribute(attr_name, value)
+    # coerce known string values to true or false
+    if self.class.columns_hash[attr_name].type == :boolean && value.is_a?(String)
+      if %w(true yes y si t yep).include? value
+        value = true
+      elsif %w(false no n f nope).include? value
+        value = false
+      else
+        raise "Unexpected answer for a Boolean field: #{value}"
+      end
+    end
+    super(attr_name, value)
+  end
 end
 
 # food stamps
@@ -84,7 +99,7 @@ class Profile
       transition all => :qualified, if: ->(p) {
         cutoffs = p.age >= 60 || p.on_disability ? SnapEligibilitySenior : SnapEligibility
         cutoff = cutoffs.find_by({ :snap_dependent_no => p.people_in_household })
-        p.monthly_income < cutoff.snap_gross_income.to_i
+        p.monthly_income < cutoff.snap_gross_income
       }
       transition all => :disqualified
     end

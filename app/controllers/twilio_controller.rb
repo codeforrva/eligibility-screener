@@ -13,6 +13,10 @@ class TwilioController < ApplicationController
       profile = Profile.find_or_create_by!(phone_number: message.From)
 
       # strip anything after the space and force lowercase
+      if message.Body.nil? || message.Body == ''
+        render nothing: true
+        return
+      end
       body = message.Body.split(/ /).first.strip.downcase
 
       # check for control words
