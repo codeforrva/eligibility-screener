@@ -6,8 +6,9 @@ class Profile < ActiveRecord::Base
   validates :people_in_household,
     numericality: { only_integer: true, greater_than_or_equal_to: 0,
     less_than_or_equal_to: SnapEligibility.maximum(:snap_dependent_no) }, allow_nil: true
-  # TODO: state machines collection is not available yet - maybe after all the state machines are defined
-  # validates :active_screener, inclusion: { in: Profile.screener_names }, allow_nil: true
+  # make sure the active screener is a valid state machine
+  # uses a lambda so it is evaluated after all the state machines are defined
+  validates :active_screener, inclusion: { in: ->(p) { p.class.screener_names } }, allow_nil: true
 
   def self.question_attributes
     attribute_names - ['id','phone_number','created_at','updated_at','active_screener'] - state_attributes
@@ -62,6 +63,27 @@ class Profile < ActiveRecord::Base
     end
     super(attr_name, value)
   end
+
+  # define a screener with the given name and a block
+  # to execute for the :next event
+  def self.screener(name, &block)
+    name = name.to_sym
+
+    state_machine name, attribute: "#{name}_state".to_sym,
+      initial: :start, namespace: name do
+        # special states
+        state :start
+        state :qualified
+        state :disqualified
+        # one state per question attribute
+        Profile.question_attributes.map(&:to_sym).each do |n|
+          state n
+        end
+
+        # pass custom block to the :next event
+        event :next, &block
+    end
+  end
 end
 
 # food stamps
@@ -72,55 +94,35 @@ class Profile
       (!age.nil? && age < 18)
   end
 
-  state_machine :food, attribute: :food_state, initial: :start, namespace: :food do
-    state :start
-    Profile.question_attributes.map(&:to_sym).each do |n|
-      state n
-    end
-    state :qualified
-    state :disqualified
+  screener :food do
+    # if disqualified but no zip code, get the zip code
+    transition all => :zip_code, if: ->(p) { p.zip_code.nil? && p.food_disqualified? }
+    # if disqualified with zip code, finished
+    transition all => :disqualified, if: ->(p) { p.food_disqualified? }
 
-    # this will execute the first matching transition
-    event :next do
-      # if disqualified but no zip code, get the zip code
-      transition all => :zip_code, if: ->(p) { p.zip_code.nil? && p.food_disqualified? }
-      # if disqualified with zip code, finished
-      transition all => :disqualified, if: ->(p) { p.food_disqualified? }
+    # questions
+    transition all => :enrolled_college, if: ->(p) { p.enrolled_college.nil? }
+    transition all => :us_citizen, if: ->(p) { p.us_citizen.nil? }
+    transition all => :age, if: ->(p) { p.age.nil? }
+    transition all => :people_in_household, if: ->(p) { p.people_in_household.nil? }
+    transition all => :on_disability, if: ->(p) { p.on_disability.nil? }
+    transition all => :monthly_income, if: ->(p) { p.monthly_income.nil? }
 
-      # questions
-      transition all => :enrolled_college, if: ->(p) { p.enrolled_college.nil? }
-      transition all => :us_citizen, if: ->(p) { p.us_citizen.nil? }
-      transition all => :age, if: ->(p) { p.age.nil? }
-      transition all => :people_in_household, if: ->(p) { p.people_in_household.nil? }
-      transition all => :on_disability, if: ->(p) { p.on_disability.nil? }
-      transition all => :monthly_income, if: ->(p) { p.monthly_income.nil? }
-
-      # now decide
-      transition all => :qualified, if: ->(p) {
-        cutoffs = p.age >= 60 || p.on_disability ? SnapEligibilitySenior : SnapEligibility
-        cutoff = cutoffs.find_by({ :snap_dependent_no => p.people_in_household })
-        p.monthly_income < cutoff.snap_gross_income
-      }
-      transition all => :disqualified
-    end
+    # now decide
+    transition all => :qualified, if: ->(p) {
+      cutoffs = p.age >= 60 || p.on_disability ? SnapEligibilitySenior : SnapEligibility
+      cutoff = cutoffs.find_by({ :snap_dependent_no => p.people_in_household })
+      p.monthly_income < cutoff.snap_gross_income
+    }
+    transition all => :disqualified
   end
 end
 
 # aperture science
 class Profile
-  state_machine :science, attribute: :science_state, initial: :start, namespace: :science do
-    state :start
-    Profile.question_attributes.map(&:to_sym).each do |n|
-      state n
-    end
-    state :qualified
-    state :disqualified
-
-    # this will execute the first matching transition
-    event :next do
-      transition all => :age, if: ->(p) { p.age.nil? }
-      transition all => :qualified, if: ->(p) { p.age <= 1000 }
-      transition all => :disqualified
-    end
+  screener :science do |m|
+    m.transition all => :age, if: ->(p) { p.age.nil? }
+    m.transition all => :qualified, if: ->(p) { p.age <= 1000 }
+    m.transition all => :disqualified
   end
 end
