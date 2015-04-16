@@ -33,7 +33,7 @@ class TwilioController < ApplicationController
         reset_session
         response = "OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
       when "list"
-        response = RegisteredScreeners.all_instructions
+        response = Profile.all_instructions
       when *Profile.screener_names
         profile.active_screener = body
       end

@@ -22,6 +22,10 @@ class Profile < ActiveRecord::Base
     state_machines.keys.map &:to_s
   end
 
+  def self.all_instructions
+    state_machines.keys.map { |n| public_send("#{n}_instructions") }.join ' '
+  end
+
   def reset!
     self.class.question_attributes.each do |n|
       public_send("#{n}=", nil)
@@ -64,10 +68,22 @@ class Profile < ActiveRecord::Base
     super(attr_name, value)
   end
 
-  # define a screener with the given name and a block
-  # to execute for the :next event
-  def self.screener(name, &block)
+  # define a screener with the given name, attributes hash,
+  # and a block to execute for the :next event
+  def self.screener(name, attrs = {}, &block)
     name = name.to_sym
+
+    # each attribute pair defines a new class method accessor
+    # strings are formatted with the screener name
+    # for example, { :welcome => "Hi there, this is %s" } results in
+    # def self.screenername_welcome
+    #   "Hi there, this is %s" % screenername
+    # end
+    attrs.each do |k,v|
+      Profile.define_singleton_method "#{name}_#{k}" do
+        v % name
+      end
+    end
 
     state_machine name, attribute: "#{name}_state".to_sym,
       initial: :start, namespace: name do
@@ -94,7 +110,8 @@ class Profile
       (!age.nil? && age < 18)
   end
 
-  screener :food do
+  screener :food,
+    instructions: "For food stamps, text '%s'." do
     # if disqualified but no zip code, get the zip code
     transition all => :zip_code, if: ->(p) { p.zip_code.nil? && p.food_disqualified? }
     # if disqualified with zip code, finished
@@ -120,9 +137,10 @@ end
 
 # aperture science
 class Profile
-  screener :science do |m|
-    m.transition all => :age, if: ->(p) { p.age.nil? }
-    m.transition all => :qualified, if: ->(p) { p.age <= 1000 }
-    m.transition all => :disqualified
+  screener :science,
+    instructions: "For testing and cake, text '%s'." do
+    transition all => :age, if: ->(p) { p.age.nil? }
+    transition all => :qualified, if: ->(p) { p.age <= 1000 }
+    transition all => :disqualified
   end
 end
