@@ -59,6 +59,7 @@ class TwilioController < ApplicationController
           response = Profile.all_instructions
         when *Profile.screener_names
           profile.active_screener = Profile.screener_key_for(body)
+          profile.save!
         end
 
         # send & return if we have response text

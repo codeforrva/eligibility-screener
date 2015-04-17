@@ -56,12 +56,13 @@ class Profile < ActiveRecord::Base
   end
 
   def handle_answer!(ans)
+    Rails.logger.info active_screener
     state_attr = "#{active_screener}_state"
     if start_or_end_state?(self[state_attr])
       # send next state
       # qualification may change if the profile has changed
       public_send("next_#{active_screener}!")
-    elsif ans == active_screener
+    elsif [active_screener, I18n.t("#{active_screener}.name")].include? ans
       # repeat current state
       self[state_attr]
     else
