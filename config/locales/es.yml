@@ -9,7 +9,7 @@ es:
     list: "es_list"
   # general responses
   response:
-    welcome: "es Welcome to Aperture Science! We help you check your eligibility for benefits. For a list of programs, text 'list'. You can also text 'reset' or 'delete'."
+    welcome: "es Welcome to Aperture Science! We help you check your eligibility for benefits. For a list of programs, text 'es_list'. You can also text 'reset' or 'es_delete'."
     reset: "es OK, reset. Text 'hello' to begin again, or 'list' for a list of programs."
     delete: "es OK, info deleted. Text 'hello' to begin again, or 'list' for a list of programs."
   # errors
@@ -28,6 +28,9 @@ es:
     instructions: "es For food stamps, text '%s'."
     qualified: "es It looks like you qualify for food stamps! We should probably tell you how to get them now."
     disqualified: "es Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
+    disqualified_age: "es You must be 18 or older to qualify for food stamps. Your zip code is %{zip_code}."
+    disqualified_citizen: "es You must be a US citizen to qualify for food stamps. Your zip code is %{zip_code}."
+    disqualified_college: "es You cannot qualify for food stamps if you are enrolled in college. Your zip code is %{zip_code}."
   # aperture science screener
   science:
     instructions: "es For testing and cake, text '%s'."

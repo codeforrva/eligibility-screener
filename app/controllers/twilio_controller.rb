@@ -73,7 +73,9 @@ class TwilioController < ApplicationController
           return
         end
 
-        response = I18n.t(profile.handle_answer!(body))
+        # translate the next answer, passing in the profile as a hash for use
+        # in the translation strings
+        response = I18n.t(profile.handle_answer!(body), profile.as_json.symbolize_keys)
       end
 
     rescue Exception => e

@@ -27,6 +27,9 @@ en:
     instructions: "For food stamps, text '%s'."
     qualified: "It looks like you qualify for food stamps! We should probably tell you how to get them now."
     disqualified: "Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
+    disqualified_age: "You must be 18 or older to qualify for food stamps. Your zip code is %{zip_code}."
+    disqualified_citizen: "You must be a US citizen to qualify for food stamps. Your zip code is %{zip_code}."
+    disqualified_college: "You cannot qualify for food stamps if you are enrolled in college. Your zip code is %{zip_code}."
   # aperture science screener
   science:
     instructions: "For testing and cake, text '%s'."

@@ -26,6 +26,13 @@ class Profile < ActiveRecord::Base
     state_machines.keys.map { |n| I18n.t("#{n}.instructions") % n }.join ' '
   end
 
+  # whether a given state name is a start or end state
+  # 'start' is always the start state
+  # end states either are, or contain, 'qualified' or 'disqualified'
+  def start_or_end_state?(state)
+    state == 'start' || ['qualified', 'disqualified'].any? { |s| s == state || state.include?(s) }
+  end
+
   def reset!
     self.class.question_attributes.each do |n|
       public_send("#{n}=", nil)
@@ -39,7 +46,7 @@ class Profile < ActiveRecord::Base
 
   def handle_answer!(ans)
     state_attr = "#{active_screener}_state"
-    if ['start', 'qualified', 'disqualified'].include? self[state_attr]
+    if start_or_end_state?(self[state_attr])
       # send next state
       # qualification may change if the profile has changed
       public_send("next_#{active_screener}!")
@@ -53,8 +60,8 @@ class Profile < ActiveRecord::Base
       public_send("next_#{active_screener}!") # saves
     end
      # return new state name for translation
-     # qualified & disqualified get prefixed
-    if ['qualified', 'disqualified'].include? self[state_attr]
+     # end states get prefixed so they can have custom translation text for each screener
+    if start_or_end_state?(self[state_attr])
       "#{active_screener}.#{self[state_attr]}"
     else
       self[state_attr]
@@ -77,22 +84,11 @@ class Profile < ActiveRecord::Base
 
   # define a screener with the given name, attributes hash,
   # and a block to execute for the :next event
-  # TODO: allow creating custom states
   # TODO: screener aliases for translations
-  def self.screener(name, attrs = {}, &block)
+  def self.screener(name, attrs = {
+        custom_states: [] # custom states to add to the state machine in addition to the defaults
+      }, &block)
     name = name.to_sym
-
-    # each attribute pair defines a new class method accessor
-    # strings are formatted with the screener name
-    # for example, { :welcome => "Hi there, this is %s" } results in
-    # def self.screenername_welcome
-    #   "Hi there, this is %s" % screenername
-    # end
-    attrs.each do |k,v|
-      Profile.define_singleton_method "#{name}_#{k}" do
-        v % name
-      end
-    end
 
     state_machine name, attribute: "#{name}_state".to_sym,
       initial: :start, namespace: name do
@@ -100,6 +96,10 @@ class Profile < ActiveRecord::Base
         state :start
         state :qualified
         state :disqualified
+        # custom states
+        attrs[:custom_states].each do |s|
+          state s
+        end
         # one state per question attribute
         Profile.question_attributes.map(&:to_sym).each do |n|
           state n
@@ -119,11 +119,13 @@ class Profile
       (!age.nil? && age < 18)
   end
 
-  screener :food do
+  screener :food, custom_states: [:disqualified_age, :disqualified_citizen, :disqualified_college] do
     # if disqualified but no zip code, get the zip code
     transition all => :zip_code, if: ->(p) { p.zip_code.nil? && p.food_disqualified? }
     # if disqualified with zip code, finished
-    transition all => :disqualified, if: ->(p) { p.food_disqualified? }
+    transition all => :disqualified_age, if: ->(p) { !p.age.nil? && p.age < 18 }
+    transition all => :disqualified_citizen, if: ->(p) { p.us_citizen === false }
+    transition all => :disqualified_college, if: ->(p) { p.enrolled_college }
 
     # questions
     transition all => :enrolled_college, if: ->(p) { p.enrolled_college.nil? }
