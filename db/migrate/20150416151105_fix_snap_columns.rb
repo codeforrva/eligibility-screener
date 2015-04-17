@@ -1,6 +1,6 @@
 class FixSnapColumns < ActiveRecord::Migration
   def change
-    if ActiveRecord::Base.connection.adapter_name = 'PostgreSQL'
+    if ActiveRecord::Base.connection.class.name.downcase.include? 'postgres'
       # postgresql needs to cast from string to integer
       change_column :snap_eligibilities, :snap_dependent_no, 'integer USING CAST("snap_dependent_no" AS integer)'
       change_column :snap_eligibilities, :snap_gross_income, 'integer USING CAST("snap_gross_income" AS integer)'
