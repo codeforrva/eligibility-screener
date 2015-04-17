@@ -1,12 +1,32 @@
-# Build a Supplemental Nutrition Assistance Program (SNAP or food stamps) Eligibility Pre-Screener
+# Code for RVA Eligibility Screener
 
-On February 20-22nd, mRelief (www.mrelief.com) will be part of a national event in partnership with Code For America (CFA) to build upon our work as the first Social Services Delivery SMS application for screening eligibility in the US. mRelief is a midwest based web and SMS application led by an all-woman web development team that helps users check their eligibility for public assistance. CFA organizes a network of people dedicated to making government services simple, effective, and easy to use.
+This app is a platform for SMS-based eligibility screeners similar to [mRelief](http://www.mrelief.com/). It allows people to determine eligibility for assistance programs by answering questions via text message.
 
-We invite users all across the nation to participate in a challenge to build a food stamps eligibility pre-screeners for a target population.  We also encourage meaningful collaboration with non-technical experts in the field engaged in food policy and advocacy.
+SMS integration is through Twilio.
 
+The app is currently running [on Heroku](https://rva-screener.herokuapp.com/), although it only has example screeners and no real functionality. SMS functionality is not connected but the app can be used via the test console.
 
-Here is a codebase of an SMS pre-screener. Fork this codebase, update it for your target population and then push your branch back up to GitHub!
+## Features
 
+* Supports multiple programs through separate screeners. Each screener operates on the same profile (identified by phone number), so they can share info and avoid asking the same question twice.
+* Easy to add new screeners. Helper methods to avoid boilerplate and easily define eligibility rules in code.
+* Supports multiple languages. The app as a whole, and each individual screener, can be easily translated to multiple languages.
+* Test console. The main page of the app is a test console that simulates an SMS conversation via the web.
+
+## Usage
+
+There are a few control commands:
+
+* `hello` - displays a welcome message. Choose a language by saying 'hello' in that language (for instance, `hola`).
+* `reset` - clears profile data for the current phone number and resets the language to English.
+* `delete` - deletes all profile data for the current phone number.
+* `list` - lists all the screeners that are available and how to access them.
+
+A screener is selected using the screener's name (as shown by the `list` command). Once the screener is active, it will begin asking questions until enough information is known to make an eligibility decision; it will then display the resulting message.
+
+If an answer has already been given through a previous screener, it will not be asked again unless the profile is reset.
+
+If a language other than English is active, the user can use the `delete` and `list` commands and the screener names that have been translated in to that language.  For instance, the food stamp screener is accessed by texting `food` in English but `comida` in Spanish.
 
 ## Setting up the app
 
@@ -14,13 +34,13 @@ Here is a codebase of an SMS pre-screener. Fork this codebase, update it for you
 
 Here's how you set up this sample app:
 
-Clone the mRelief sample screening app:
+Clone the app:
 
-`git clone https://github.com/mRelief/mrelief_snap_screener_example.git`
+`git clone https://github.com/codeforrva/eligibility-screener.git`
 
 Go into the app directory:
 
-`cd mrelief_snap_screener_example`
+`cd eligibility-screener`
 
 Install dependencies with bundle (this may take a few minutes):
 
@@ -38,8 +58,21 @@ Run the app:
 
 `rails s`
 
+Or to allow it to be accessed from the Internet:
+
+`rails s -b 0.0.0.0`
+
 ## Testing with cURL
 
 You can simulate sending a text message to the app using cURL if cookies are enabled. For example:
 
-`curl -X POST http://localhost:3000/ -c /tmp/cookies -b /tmp/cookies -d 'Body=hello'`
+`curl -X POST http://servername:3000/ -c /tmp/cookies -b /tmp/cookies -d 'Body=hello'`
+
+The test console is also available at http://servername:3000/.
+
+## TODO
+
+* Localize 'Error' and field names
+* Tests
+* Translations
+* Documentation on how to add new screeners, translations, etc
