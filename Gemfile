@@ -55,6 +55,9 @@ end
 group :production do
   # Postgres on Heroku
   gem 'pg'
+
+  # because Heroku likes it
+  gem 'rails_12factor'
 end
 
 gem 'state_machines-activerecord'
