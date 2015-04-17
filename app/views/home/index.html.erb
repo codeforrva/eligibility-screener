@@ -1,18 +1,24 @@
 
 <h3>mRelief SNAP screener example</h3>
 
-<p>Use this form to simulate an SMS conversation with the app.</p>
+<p>Use this form to simulate an SMS conversation with the app. Your fake phone number is <span id="phone-number"></span>.</p>
 
 <input type="text" id="message" placeholder="type message here (hello to start)" style="width: 400px">
 <ul id="replies"></ul>
 <script>
 $(function() {
+  var fakePhoneNumber = '999';
+  while (fakePhoneNumber.length < 10) {
+    fakePhoneNumber += Math.random().toString().substring(2,3);
+  }
+  $('#phone-number').text(fakePhoneNumber);
   $('#message').on('keypress', function (e) {
     if (e.keyCode == 13) {
       var data = {
           Body: $(this).val(),
-          From: '9999999999'
+          From: fakePhoneNumber
       };
+      $('#replies').append($('<li style="list-style-type: circle"/>').text(data.Body));
 
       $.post('/', data).done(function(r) {
         addMessage(r);
