@@ -24,7 +24,8 @@ en:
   on_disability: "Are you receiving disability payments from Social Security, the Railroad Retirement Board or Veterans Affairs?"
   # food stamp screener
   food:
-    instructions: "For food stamps, text '%s'."
+    name: "food"
+    instructions: "For food stamps, text '%{name}'."
     qualified: "It looks like you qualify for food stamps! We should probably tell you how to get them now."
     disqualified: "Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
     disqualified_age: "You must be 18 or older to qualify for food stamps. Your zip code is %{zip_code}."
@@ -32,6 +33,7 @@ en:
     disqualified_college: "You cannot qualify for food stamps if you are enrolled in college. Your zip code is %{zip_code}."
   # aperture science screener
   science:
-    instructions: "For testing and cake, text '%s'."
+    name: "science"
+    instructions: "For testing and cake, text '%{name}'."
     qualified: "Based on the fact that you are alive, you are eligible for testing programs at Aperture Science!"
     disqualified: "Based on the fact that you are likely dead, you may not be eligible for testing programs at Aperture Science."

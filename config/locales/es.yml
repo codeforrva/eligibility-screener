@@ -19,13 +19,14 @@ es:
   enrolled_college: "es Are you currently enrolled in college?"
   us_citizen: "es Are you a United States citizen?"
   zip_code: "es What is your zip code?"
-  age: "es What is your age?"
+  age: "¿Cuántos años tiene usted?"
   people_in_household: "es How many people live in your household, including yourself?"
   monthly_income: "es What is the gross monthly income of all people living in your household, including yourself? Income includes social security, child support, and unemployment insurance before any deductions."
   on_disability: "es Are you receiving disability payments from Social Security, the Railroad Retirement Board or Veterans Affairs?"
   # food stamp screener
   food:
-    instructions: "es For food stamps, text '%s'."
+    name: "comida"
+    instructions: "es For food stamps, text '%{name}'."
     qualified: "es It looks like you qualify for food stamps! We should probably tell you how to get them now."
     disqualified: "es Based on your entries, you probably don't qualify for food stamps. We'll tell you what else you can do though."
     disqualified_age: "es You must be 18 or older to qualify for food stamps. Your zip code is %{zip_code}."
@@ -33,6 +34,7 @@ es:
     disqualified_college: "es You cannot qualify for food stamps if you are enrolled in college. Your zip code is %{zip_code}."
   # aperture science screener
   science:
-    instructions: "es For testing and cake, text '%s'."
+    name: "ciencia"
+    instructions: "es For testing and cake, text '%{name}'."
     qualified: "es Based on the fact that you are alive, you are eligible for testing programs at Aperture Science!"
     disqualified: "es Based on the fact that you are likely dead, you may not be eligible for testing programs at Aperture Science."

@@ -8,7 +8,7 @@ class Profile < ActiveRecord::Base
     less_than_or_equal_to: SnapEligibility.maximum(:snap_dependent_no) }, allow_nil: true
   # make sure the active screener is a valid state machine
   # uses a lambda so it is evaluated after all the state machines are defined
-  validates :active_screener, inclusion: { in: ->(p) { p.class.screener_names } }, allow_nil: true
+  validates :active_screener, inclusion: { in: ->(p) { p.class.screener_keys } }, allow_nil: true
 
   def self.question_attributes
     attribute_names - ['id','phone_number','created_at','updated_at','active_screener','locale'] - state_attributes
@@ -18,12 +18,23 @@ class Profile < ActiveRecord::Base
     attribute_names.find_all{ |n| n.ends_with? '_state' }
   end
 
-  def self.screener_names
+  # non-localized list of defined screener keys
+  def self.screener_keys
     state_machines.keys.map &:to_s
   end
 
+  # localized list of defined screener names
+  def self.screener_names
+    state_machines.keys.map { |n| I18n.t("#{n}.name") }
+  end
+
+  # return the screener key for a given localized name
+  def self.screener_key_for(name)
+    state_machines.select { |k,v| I18n.t("#{k}.name") == name }.keys.first
+  end
+
   def self.all_instructions
-    state_machines.keys.map { |n| I18n.t("#{n}.instructions") % n }.join ' '
+    state_machines.keys.map { |n| I18n.t("#{n}.instructions", name: I18n.t("#{n}.name")) }.join ' '
   end
 
   # whether a given state name is a start or end state
@@ -84,7 +95,6 @@ class Profile < ActiveRecord::Base
 
   # define a screener with the given name, attributes hash,
   # and a block to execute for the :next event
-  # TODO: screener aliases for translations
   def self.screener(name, attrs = {
         custom_states: [] # custom states to add to the state machine in addition to the defaults
       }, &block)
